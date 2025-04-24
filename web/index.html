@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Blox</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="gameWrapper">
+    <button id="resetBtn">Restart Game</button>
+    <button id="toggleControlsBtn">Toggle Controls</button>
+    <canvas id="game"></canvas>
+</div>
+<div class="mobile-controls">
+    <button id="leftBtn">⬅️</button>
+    <button id="downBtn">⬇️</button>
+    <button id="rightBtn">➡️</button>
+</div>
+<div id="scoreDisplay" style="position:absolute; top:10px; left:50%; transform:translateX(-50%); font-size:48px; color:rgb(255, 255, 255); z-index:20;">
+    Score: 0
+</div>
+<div id="gameOver">
+    GAME OVER
+    <div class="subtext">Press R to restart</div>
+</div>
+
+
+<script src="blox.js"></script>
+</body>
+</html>

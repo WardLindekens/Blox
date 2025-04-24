@@ -1,0 +1,9 @@
+ROWS = 16
+COLS = 6
+BONUS_COLOR = 6
+FAST_DROP_SPEED = 4
+BLOCK_PLACED_SCORE = 10
+BONUS_SCORE = 200
+CLEAR_ROW_SCORE = 50
+NEIGHBOR_DELTAS = [(-1,0), (1,0), (0,-1), (0,1)]
+FULL_ROWS_TO_CLEAR = 3 # makes a clean overview a bit harder than with just 2 lines and pushes players towards collecting a bonus
