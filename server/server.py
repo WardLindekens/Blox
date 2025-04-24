@@ -79,7 +79,7 @@ async def websocket_handler(request):
     return ws
 
 # Serve index.html at root
-async def index():
+async def index(request):
     return web.FileResponse(path=os.path.join("web", "index.html"))
 
 # Create and configure the app
