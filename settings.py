@@ -7,3 +7,7 @@ BONUS_SCORE = 200
 CLEAR_ROW_SCORE = 50
 NEIGHBOR_DELTAS = [(-1,0), (1,0), (0,-1), (0,1)]
 FULL_ROWS_TO_CLEAR = 3 # makes a clean overview a bit harder than with just 2 lines and pushes players towards collecting a bonus
+BLOCKS_PLACED_THRESHOLD = 30
+SCORE_THRESHOLD = 1000
+GAMESPEED_MIN = 0.2
+GAMESPEED_MAX = 0.05
