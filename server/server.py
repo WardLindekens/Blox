@@ -1,66 +1,92 @@
 import asyncio
-import websockets
 import json
+import os
+from aiohttp import web
 from game.game import Game
 from game.board import clear_bottom_row
 import settings
 
-async def handle_client(websocket):
-    player_fast_drop = False
+async def websocket_handler(request):
+    ws = web.WebSocketResponse()
+    await ws.prepare(request)
+
     game = Game()
 
-    while True:
-        try:
-            msg = await asyncio.wait_for(websocket.recv(), timeout=0.1) #increase for level diff towards 0.01
-            data = json.loads(msg)
-            action = data.get("action")
+    # Send game state to client
+    async def send_state():
+        await ws.send_json({
+            "message_type": "state_update",
+            "block": {"x": game.block.x, "y": game.block.y, "color": game.block.color},
+            "score": game.score,
+            "game_over": game.game_over,
+            "board": game.board
+        })
 
-            if action == "reset":
-                player_fast_drop = False
-                game = Game()
-            elif action == "fast_drop":
-                player_fast_drop = data.get("active", False)
-            elif action and not game.game_over:
-                game.apply_input(action)
-        except asyncio.TimeoutError:
-            pass                    #allowed to timeout without new data
+    # Send game animations to client
+    async def send_animation():
+        await ws.send_json({
+            "message_type": "animation_event",
+            "animations": game.events
+        })
 
-        if not game.game_over:
-            if game.events:
-                await websocket.send(json.dumps({
-                    "message_type": "animation_event",
-                    "animations": game.events
-                }))
-                game.events = []
-                await asyncio.sleep(0.6) # let animation finish
-                if game.clear_bottom_row:
-                    clear_bottom_row(game.board)
-                    game.clear_bottom_row = False
-                    game.continue_after_animation()
-                continue
+    # Listen for client input
+    async def input_listener():
+        nonlocal game
+        async for msg in ws:
+            if msg.type == web.WSMsgType.TEXT:
+                try:
+                    data = json.loads(msg.data)
+                    action = data.get("action")
 
-            if player_fast_drop:
-                for _ in range(settings.FAST_DROP_SPEED):
-                    locked = game.apply_input("fast_drop")
-                    if locked or game.game_over:
-                        break
-            else:
+                    if action == "reset":
+                        game = Game()
+
+                    elif action == "fast_drop" and data.get("active", False):
+                        for _ in range(settings.FAST_DROP_SPEED):
+                            locked = game.apply_input("fast_drop")
+                            if locked or game.game_over:
+                                break
+                        await send_state()
+
+                    elif action and not game.game_over:
+                        game.apply_input(action)
+
+                except Exception as e:
+                    print("Input error:", e)
+
+    # Main game loop
+    async def game_loop():
+        while True:
+            if not game.game_over:
+                if game.events:
+                    await send_animation()
+                    game.events = []
+                    await asyncio.sleep(0.6)
+
+                    if game.clear_bottom_row:
+                        clear_bottom_row(game.board)
+                        game.clear_bottom_row = False
+                        game.continue_after_animation()
+                    continue
+
                 game.step()
+                await send_state()
 
-            await websocket.send(json.dumps({
-                "message_type": "state_update",
-                "block": {"x": game.block.x, "y": game.block.y, "color": game.block.color},
-                "score": game.score,
-                "game_over": game.game_over,
-                "board": game.board
-            }))
+            await asyncio.sleep(0.2)
 
-        await asyncio.sleep(0.1)
+    # Run game and input handler concurrently
+    await asyncio.gather(input_listener(), game_loop())
+    return ws
 
-async def main():
-    async with websockets.serve(handle_client, "0.0.0.0", 8000):
-        print("Server started on ws://0.0.0.0:8000")
-        await asyncio.Future()
+# Serve index.html at root
+async def index(request):
+    return web.FileResponse(path=os.path.join("web", "index.html"))
+
+# Create and configure the app
+app = web.Application()
+app.router.add_get("/", index)
+app.router.add_get("/ws", websocket_handler)
+app.router.add_static("/", path="web", name="static")
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    web.run_app(app, port=8080)

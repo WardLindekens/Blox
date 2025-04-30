@@ -1,5 +1,7 @@
 // WebSocket handling
-const ws = new WebSocket("ws://" + location.hostname + ":8000");
+const ws = new WebSocket(`${location.origin.replace(/^http/, "ws")}/ws`);
+
+
 ws.onopen = () => {
     console.log("WebSocket connected!");
 };
