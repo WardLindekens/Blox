@@ -56,6 +56,7 @@ function handleServerMessage(event) {
         case "state_update":
             draw(message);
             updateScore(message.score);
+            updateLevel(message.level);
             if (message.game_over && !gameOverShown) {
                 gameOverShown = true;
                 document.getElementById("gameOver").classList.remove("hidden");
@@ -245,4 +246,9 @@ function flickerRow(rows){
 function updateScore(score) {
     const scoreDiv = document.getElementById("scoreDisplay");
     scoreDiv.textContent = `Score: ${score}`;
+}
+
+function updateLevel(level) {
+    const scoreDiv = document.getElementById("levelDisplay");
+    scoreDiv.textContent = `Level: ${level}`;
 }

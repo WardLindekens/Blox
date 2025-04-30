@@ -18,6 +18,7 @@ async def websocket_handler(request):
             "message_type": "state_update",
             "block": {"x": game.block.x, "y": game.block.y, "color": game.block.color},
             "score": game.score,
+            "level": game.level,
             "game_over": game.game_over,
             "board": game.board
         })
@@ -70,9 +71,10 @@ async def websocket_handler(request):
                     continue
 
                 game.step()
+                game.update_level()
                 await send_state()
 
-            await asyncio.sleep(0.2)
+            await asyncio.sleep(max(settings.GAMESPEED_MAX, settings.GAMESPEED_MIN - game.level * 0.01))
 
     # Run game and input handler concurrently
     await asyncio.gather(input_listener(), game_loop())
