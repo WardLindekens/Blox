@@ -109,3 +109,26 @@ body.show-controls .mobile-controls {
 #gameOver.hidden {
     display: none;
 }
+
+#highscoreDisplay {
+    text-shadow: 0 0 1px #0f0, 0 0 2px #0f0, 0 0 3px #0f0;
+}
+
+.retro-button {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 14px;
+    background-color: black;
+    color: lime;
+    border: 4px solid lime;
+    padding: 10px 20px;
+    cursor: pointer;
+    text-transform: uppercase;
+    box-shadow: 0 0 10px lime;
+    transition: all 0.2s ease-in-out;
+}
+
+.retro-button:hover {
+    background-color: lime;
+    color: black;
+    box-shadow: 0 0 20px lime;
+}

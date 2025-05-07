@@ -60,6 +60,7 @@ function handleServerMessage(event) {
             if (message.game_over && !gameOverShown) {
                 gameOverShown = true;
                 document.getElementById("gameOver").classList.remove("hidden");
+                showHighscores(message.highscores)
             }
             if (!message.game_over) {
                 gameOverShown = false;
@@ -230,7 +231,7 @@ function flickerRow(rows){
     const flickerDuration = 80;
     const flicker = setInterval(() => {        
         for( let x = 0; x < rows.length; x++){
-            color = (flickerInterval%2 === 0) ? "black": rows[x];
+            let color = (flickerInterval%2 === 0) ? "black": rows[x];
             drawBlock(x, boardRows - 1, color);
         }
         (flickerInterval%2 === 0) ? drawRow(boardRows - 1, [6,6,6,6,6,6]) : drawRow(boardRows - 1, rows);
@@ -251,4 +252,44 @@ function updateScore(score) {
 function updateLevel(level) {
     const scoreDiv = document.getElementById("levelDisplay");
     scoreDiv.textContent = `Level: ${level}`;
+}
+
+function showHighscores(scores) {
+    const display = document.getElementById("highscoreDisplay");
+    const list = document.getElementById("highscoreList");
+    list.innerHTML = ""; // Clear previous list
+
+    scores.forEach((entry, index) => {
+        const row = document.createElement("div");
+        row.style.display = "flex";
+        row.style.justifyContent = "space-between";
+        row.style.marginBottom = "10px";
+
+        const rank = document.createElement("span");
+        rank.textContent = `${index + 1}.`;
+        rank.style.flex = "1";
+        rank.style.textAlign = "right";
+
+        const name = document.createElement("span");
+        name.textContent = `${entry.name}`;
+        name.style.flex = "1";
+        name.style.textAlign = "center";
+
+        const score = document.createElement("span");
+        score.textContent = entry.score;
+        score.style.flex = "1";
+        score.style.textAlign = "right";
+
+        row.appendChild(rank);
+        row.appendChild(name);
+        row.appendChild(score);
+        list.appendChild(row);
+    });
+    display.style.display = "block";
+
+}
+
+function hideHighscores() {
+    document.getElementById("highscoreDisplay").style.display = "none";
+    location.reload();
 }
