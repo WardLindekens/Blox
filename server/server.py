@@ -4,6 +4,7 @@ import os
 from aiohttp import web
 from game.game import Game
 from game.board import clear_bottom_row
+from server.highscores import add_highscore, load_highscores
 import settings
 
 async def websocket_handler(request):
@@ -14,14 +15,18 @@ async def websocket_handler(request):
 
     # Send game state to client
     async def send_state():
-        await ws.send_json({
+        message = {
             "message_type": "state_update",
             "block": {"x": game.block.x, "y": game.block.y, "color": game.block.color},
             "score": game.score,
             "level": game.level,
             "game_over": game.game_over,
             "board": game.board
-        })
+        }
+        if game.game_over:
+            add_highscore("Player1", game.score) #TODO add player input
+            message["highscores"] = load_highscores()
+        await ws.send_json(message)
 
     # Send game animations to client
     async def send_animation():
