@@ -59,12 +59,10 @@ function handleServerMessage(event) {
             updateLevel(message.level);
             if (message.game_over && !gameOverShown) {
                 gameOverShown = true;
-                document.getElementById("gameOver").classList.remove("hidden");
                 showHighscores(message.highscores)
             }
             if (!message.game_over) {
                 gameOverShown = false;
-                document.getElementById("gameOver").classList.add("hidden");
             }
             break;
         case "animation_event":

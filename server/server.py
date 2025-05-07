@@ -24,7 +24,6 @@ async def websocket_handler(request):
             "board": game.board
         }
         if game.game_over:
-            print("check highscore")
             add_highscore("Player1", game.score) #TODO add player input
             message["highscores"] = load_highscores()
         await ws.send_json(message)
