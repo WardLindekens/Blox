@@ -17,6 +17,7 @@ class Game:
         self.level = 1
         self.blocks_placed = 0
         self.score_last_levelup = 0
+        self.block_placed = False #To know when to play sound
 
     def _new_block(self):
         return Block(settings.COLS // 2, 0, random.randint(1, 5))
@@ -61,6 +62,7 @@ class Game:
         x, y = self.block.x, self.block.y
         self.board[y][x] = self.block.color
         self.score += settings.BLOCK_PLACED_SCORE * self.level
+        self.block_placed = True
         if has_same_color_neighbor(self.board, x, y):
             self.game_over = True
 

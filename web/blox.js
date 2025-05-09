@@ -9,6 +9,23 @@ ws.onerror = (err) => {
     console.error("WebSocket error:", err);
 };
 
+// Images
+const blockImages = {
+    1: new Image(),
+    2: new Image(),
+    3: new Image(),
+    4: new Image(),
+    5: new Image(),
+    6: new Image()
+};
+
+blockImages[1].src = "media/red_full.png";
+blockImages[2].src = "media/green_full.png";
+blockImages[3].src = "media/blue_full.png";
+blockImages[4].src = "media/teal_full.png";
+blockImages[5].src = "media/purple_full.png";
+blockImages[6].src = "media/yellow_full.png";
+
 // Canvas setup
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
@@ -55,14 +72,20 @@ function handleServerMessage(event) {
     switch(message.message_type) {
         case "state_update":
             draw(message);
+            if(message.block_placed){
+                playDropSound();
+            }
             updateScore(message.score);
             updateLevel(message.level);
             if (message.game_over && !gameOverShown) {
                 gameOverShown = true;
+                backgroundMusic.pause();
+                backgroundMusic.currentTime = 0;
                 showHighscores(message.highscores)
             }
             if (!message.game_over) {
                 gameOverShown = false;
+                backgroundMusic.play().catch(e => console.warn("Autoplay prevented:", e));
             }
             break;
         case "animation_event":
@@ -206,8 +229,14 @@ function drawRow(row, colors){
 }
 
 function drawBlock(x, y, color) {
-    ctx.fillStyle = ["", "red", "green", "blue", "cyan", "magenta", "yellow"][color] || "gray";
-    ctx.fillRect(x * tileSize, y * tileSize, tileSize - 2, tileSize - 2);
+    const img = blockImages[color];
+    if (img && img.complete) {
+        ctx.drawImage(img, x * tileSize, y * tileSize, tileSize, tileSize);
+    } else {
+        // Fallback to colored block while image loads or for unknown colors
+        ctx.fillStyle = ["", "red", "green", "blue", "cyan", "magenta", "yellow"][color] || "gray";
+        ctx.fillRect(x * tileSize, y * tileSize, tileSize - 2, tileSize - 2);
+    }
 }
 
 // Animation functions
@@ -290,4 +319,14 @@ function showHighscores(scores) {
 function hideHighscores() {
     document.getElementById("highscoreDisplay").style.display = "none";
     location.reload();
+}
+
+//audio
+const dropSound = document.getElementById("dropSound");
+const backgroundMusic = document.getElementById("backgroundMusic");
+
+function playDropSound(){
+    dropSound.currentTime = 0;
+    dropSound.play();
+    console.log("play dropsound");
 }
