@@ -21,12 +21,14 @@ async def websocket_handler(request):
             "score": game.score,
             "level": game.level,
             "game_over": game.game_over,
-            "board": game.board
+            "board": game.board,
+            "block_placed": game.block_placed
         }
         if game.game_over:
             add_highscore("Player1", game.score) #TODO add player input
             message["highscores"] = load_highscores()
         await ws.send_json(message)
+        game.block_placed = False
 
     # Send game animations to client
     async def send_animation():
